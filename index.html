@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Organization Features — PoC</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        header h1 span {
+            background: #e74c3c;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .user-switcher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-switcher label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .user-switcher select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+        }
+
+        #current-role {
+            background: #8e44ad;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .tabs {
+            background: white;
+            border-bottom: 1px solid #ddd;
+            padding: 0 24px;
+            display: flex;
+            gap: 0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: #333; }
+
+        .tab-btn.active {
+            color: #27ae60;
+            border-bottom-color: #27ae60;
+            font-weight: 600;
+        }
+
+        #content {
+            padding: 24px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card h2 { font-size: 20px; margin-bottom: 12px; }
+        .card h3 { font-size: 16px; margin-bottom: 10px; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-header h2 { margin-bottom: 0; }
+
+        .org-slug {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .org-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .org-title-row h2 {
+            font-size: 22px;
+            color: #333;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            flex: 1;
+            text-align: center;
+            padding: 20px 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .stat-card svg {
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-bars { margin-top: 8px; }
+
+        .role-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .role-bar-row .role-badge { width: 70px; text-align: center; }
+
+        .role-bar {
+            flex: 1;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .role-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .current-user-row { background: #f0f7ff; }
+
+        .actions-cell > * {
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            background: #2c3e50;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: #34495e; }
+
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+        .btn-disabled {
+            background: #ddd;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-disabled:hover { background: #ddd; }
+
+        .role-select {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        }
+
+        .group-card {
+            padding: 16px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .group-header h3 { margin: 0; }
+        .group-header div { display: flex; gap: 6px; }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .input:first-child { flex: 1; }
+
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 24px;
+        }
+
+        .matrix-table td, .matrix-table th {
+            text-align: center;
+        }
+
+        .matrix-table .action-name {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .highlight-col { background: #fff8e1; }
+
+        .perm-yes { color: #27ae60; font-size: 18px; font-weight: bold; }
+        .perm-no { color: #e74c3c; font-size: 18px; font-weight: bold; }
+
+        .hint {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            transition: bottom 0.3s;
+            z-index: 100;
+        }
+
+        .toast-show { bottom: 24px; }
+        .toast-allowed { background: #27ae60; }
+        .toast-denied { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CircuitVerse Enterprise <span>PoC</span></h1>
+        <div class="user-switcher">
+            <label>Switch user:</label>
+            <select id="user-switcher">
+                <option value="1">Org Owner</option>
+                <option value="2">Dept Admin</option>
+                <option value="3">Prof. Instructor</option>
+                <option value="4">Student Member</option>
+            </select>
+            <span id="current-role">owner</span>
+        </div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="dashboard">&#9673; Dashboard</button>
+        <button class="tab-btn" data-tab="members">&#9823; Members</button>
+        <button class="tab-btn" data-tab="groups">&#9881; Groups</button>
+        <button class="tab-btn" data-tab="permissions">&#9878; Permissions</button>
+    </nav>
+
+    <div id="content"></div>
+    <div id="toast" class="toast"></div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
