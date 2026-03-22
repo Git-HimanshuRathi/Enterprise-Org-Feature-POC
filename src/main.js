@@ -33,6 +33,9 @@ function render() {
     const role = getCurrentRole();
     const hasOrg = AppState.organization !== null;
 
+    // update user switcher options to reflect current roles
+    updateUserSwitcher();
+
     // update role badge in header
     const roleEl = document.getElementById("current-role");
     if (role) {
@@ -249,6 +252,17 @@ content.addEventListener("change", (e) => {
     showToast(`Role changed to ${ROLE_LABELS[newRole]}`, "allowed");
     render();
 });
+
+// --- Update user switcher to show current roles ---
+function updateUserSwitcher() {
+    const options = AppState.users.map(u => {
+        const membership = AppState.memberships.find(m => m.userId === u.id);
+        const roleText = membership ? ROLE_LABELS[membership.role] : "No role";
+        const label = AppState.organization ? `${u.name} (${roleText})` : u.name;
+        return `<option value="${u.id}" ${u.id === AppState.currentUserId ? 'selected' : ''}>${label}</option>`;
+    }).join("");
+    userSwitcher.innerHTML = options;
+}
 
 // --- Start the app ---
 render();
