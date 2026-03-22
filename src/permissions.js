@@ -7,6 +7,7 @@ export const ROLE_LEVELS = {
 };
 
 export const ACTIONS = [
+    { key: "createOrganization", label: "Create Organization" },
     { key: "viewDashboard", label: "View Dashboard" },
     { key: "viewMembers", label: "View Members" },
     { key: "inviteMember", label: "Invite Member" },
@@ -22,6 +23,12 @@ export const ACTIONS = [
 ];
 
 const rules = {
+    // any logged-in user can create an organization
+    createOrganization: (role) => ({
+        allowed: true,
+        reason: "Any logged-in user can create an organization",
+    }),
+
     viewDashboard: (role) => ({
         allowed: true,
         reason: "All members can view the dashboard",

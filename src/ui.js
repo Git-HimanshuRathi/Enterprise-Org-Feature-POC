@@ -24,11 +24,43 @@ function actionBtn(label, action, targetId, disabled) {
     return `<button class="btn btn-sm" data-action="${action}" data-target="${targetId}">${label}</button>`;
 }
 
+// --- Create Organization Page ---
+export function renderCreateOrg() {
+    return `
+        <div class="card" style="max-width:520px; margin:40px auto;">
+            <h2>Create Organization</h2>
+            <p class="hint" style="margin-bottom:16px;">
+                Any logged-in user can create an organization. You will become the Org Admin.
+            </p>
+            <div class="create-org-form">
+                <label>Organization Name</label>
+                <input type="text" id="org-name" class="input full-width" placeholder="e.g. Stanford University" />
+
+                <label>Slug (URL identifier)</label>
+                <input type="text" id="org-slug" class="input full-width" placeholder="e.g. stanford-circuits" />
+
+                <label>Description</label>
+                <input type="text" id="org-desc" class="input full-width" placeholder="e.g. EE department digital circuits" />
+
+                <label>Allowed Email Domain</label>
+                <input type="text" id="org-domain" class="input full-width" placeholder="e.g. stanford.edu" />
+
+                <button class="btn" data-action="createOrganization" style="margin-top:16px; width:100%;">
+                    Create Organization
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// --- Dashboard ---
 export function renderDashboard() {
     const org = AppState.organization;
     const roleCounts = {};
     for (const r of ROLES) roleCounts[r] = 0;
     for (const m of AppState.memberships) roleCounts[m.role]++;
+
+    const canDelete = canPerform("deleteOrganization", getCurrentRoleLocal()).allowed;
 
     return `
         <div class="org-title-row">
@@ -37,7 +69,10 @@ export function renderDashboard() {
                 <path d="M9 3v18M3 9h18"/>
             </svg>
             <h2>${org.name}</h2>
+            <span class="org-slug">/${org.slug}</span>
         </div>
+
+        ${org.emailDomain ? `<p class="hint">Allowed email domain: <strong>${org.emailDomain}</strong></p>` : ''}
 
         <div class="stats-row">
             <div class="stat-card">
@@ -73,10 +108,41 @@ export function renderDashboard() {
                 <div class="stat-label">Instructors</div>
             </div>
         </div>
+
+        ${canDelete ? `
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn btn-sm" data-action="deleteOrganization"
+                    style="background:#e74c3c;">Delete Organization</button>
+            </div>
+        ` : ''}
     `;
 }
 
+// --- Members ---
 export function renderMembers(currentRole, currentUserId) {
+    const canInvite = canPerform("inviteMember", currentRole).allowed;
+
+    // build invite form — shows users not yet in the org
+    const nonMembers = AppState.users.filter(
+        u => !AppState.memberships.find(m => m.userId === u.id)
+    );
+    const inviteHtml = canInvite && nonMembers.length > 0 ? `
+        <div class="card create-form" style="margin-bottom:16px;">
+            <h3>Invite Member</h3>
+            <div class="form-row">
+                <select id="invite-user" class="input">
+                    ${nonMembers.map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join("")}
+                </select>
+                <select id="invite-role" class="input">
+                    <option value="member">Member</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="org_admin">Org Admin</option>
+                </select>
+                <button class="btn" data-action="inviteMember">Invite</button>
+            </div>
+        </div>
+    ` : '';
+
     const rows = AppState.memberships.map(m => {
         const user = getUserById(m.userId);
         const isSelf = m.userId === currentUserId;
@@ -110,6 +176,7 @@ export function renderMembers(currentRole, currentUserId) {
     }).join("");
 
     return `
+        ${inviteHtml}
         <div class="card">
             <div class="card-header">
                 <h2>Members</h2>
@@ -129,6 +196,7 @@ export function renderMembers(currentRole, currentUserId) {
     `;
 }
 
+// --- Groups ---
 export function renderGroups(currentRole) {
     const canCreate = canPerform("createGroup", currentRole).allowed;
 
@@ -143,7 +211,6 @@ export function renderGroups(currentRole) {
     const groupCards = AppState.groups.map(g => {
         const instructor = g.mentorId ? getUserById(g.mentorId) : null;
         const members = g.memberIds.map(id => getUserById(id)).filter(Boolean);
-
         const canDelete = canPerform("deleteGroup", currentRole).allowed;
 
         return `
@@ -182,6 +249,7 @@ export function renderGroups(currentRole) {
     `;
 }
 
+// --- Permission Matrix ---
 export function renderPermissionMatrix(currentRole) {
     const matrix = getPermissionMatrix();
 
@@ -227,4 +295,10 @@ export function showToast(message, type) {
     setTimeout(() => {
         toast.className = "toast";
     }, 2000);
+}
+
+// helper to get current role without importing from data (avoids circular dep)
+function getCurrentRoleLocal() {
+    const m = AppState.memberships.find(m => m.userId === AppState.currentUserId);
+    return m ? m.role : null;
 }
