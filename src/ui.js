@@ -30,23 +30,20 @@ export function renderCreateOrg() {
         <div class="card" style="max-width:520px; margin:40px auto;">
             <h2>Create Organization</h2>
             <p class="hint" style="margin-bottom:16px;">
-                Any logged-in user can create an organization. You will become the Org Admin.
+                Any logged-in user can create an organization. You become the Org Admin.
             </p>
             <div class="create-org-form">
                 <label>Organization Name</label>
                 <input type="text" id="org-name" class="input full-width" placeholder="e.g. Stanford University" />
 
-                <label>Slug (URL identifier)</label>
-                <input type="text" id="org-slug" class="input full-width" placeholder="e.g. stanford-circuits" />
-
-                <label>Description</label>
-                <input type="text" id="org-desc" class="input full-width" placeholder="e.g. EE department digital circuits" />
-
-                <label>Allowed Email Domain</label>
-                <input type="text" id="org-domain" class="input full-width" placeholder="e.g. stanford.edu" />
-
                 <button class="btn" data-action="createOrganization" style="margin-top:16px; width:100%;">
                     Create Organization
+                </button>
+
+                <div style="text-align:center; margin:16px 0 8px; color:#999; font-size:13px;">— or —</div>
+
+                <button class="btn" data-action="loadDemo" style="width:100%; background:#27ae60;">
+                    Load Stanford Demo (prefilled data)
                 </button>
             </div>
         </div>

@@ -37,8 +37,9 @@ export function getUserById(id) {
 
 // --- Create Organization ---
 // Any logged-in user can create an org. The creator becomes org_admin.
-export function createOrganization(name, slug, description, emailDomain) {
-    AppState.organization = { name, slug, description, emailDomain };
+export function createOrganization(name) {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+    AppState.organization = { name, slug };
 
     // creator automatically gets org_admin role
     AppState.memberships = [
@@ -49,6 +50,29 @@ export function createOrganization(name, slug, description, emailDomain) {
     AppState._nextGroupId = 1;
 
     return AppState.organization;
+}
+
+// --- Load demo with prefilled Stanford data ---
+export function loadDemoData() {
+    AppState.organization = {
+        name: "Stanford University",
+        slug: "stanford-circuits",
+    };
+
+    AppState.memberships = [
+        { userId: 1, role: "org_admin" },
+        { userId: 2, role: "instructor" },
+        { userId: 3, role: "instructor" },
+        { userId: 4, role: "member" },
+    ];
+
+    AppState.groups = [
+        { id: 1, name: "EE 101 — Intro to Digital Logic", mentorId: 2, memberIds: [4] },
+        { id: 2, name: "EE 271 — Advanced Circuit Design", mentorId: 3, memberIds: [4] },
+    ];
+
+    AppState._nextGroupId = 3;
+    AppState.currentUserId = 1;
 }
 
 // --- Delete Organization ---

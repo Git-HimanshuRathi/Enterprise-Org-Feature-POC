@@ -1,6 +1,6 @@
 import {
     AppState, getCurrentUser, getCurrentRole,
-    createOrganization, deleteOrganization,
+    createOrganization, deleteOrganization, loadDemoData,
     addGroup, removeGroup, addMember, removeMember, changeRole
 } from './data.js';
 import { canPerform } from './permissions.js';
@@ -112,17 +112,24 @@ content.addEventListener("click", (e) => {
     // --- Create Organization ---
     if (action === "createOrganization") {
         const name = document.getElementById("org-name").value.trim();
-        const slug = document.getElementById("org-slug").value.trim();
-        const desc = document.getElementById("org-desc").value.trim();
-        const domain = document.getElementById("org-domain").value.trim();
 
-        if (!name || !slug) {
-            showToast("Name and slug are required", "denied");
+        if (!name) {
+            showToast("Organization name is required", "denied");
             return;
         }
 
-        createOrganization(name, slug, desc, domain);
+        createOrganization(name);
         showToast(`Organization "${name}" created! You are now Org Admin.`, "allowed");
+        currentTab = "dashboard";
+        render();
+        return;
+    }
+
+    // --- Load Stanford Demo ---
+    if (action === "loadDemo") {
+        loadDemoData();
+        userSwitcher.value = "1";
+        showToast("Stanford demo loaded — you are Org Admin", "allowed");
         currentTab = "dashboard";
         render();
         return;
