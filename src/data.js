@@ -8,22 +8,22 @@ export const AppState = {
     },
 
     users: [
-        { id: 1, name: "Org Owner", email: "owner@stanford.edu" },
-        { id: 2, name: "Dept Admin", email: "admin@stanford.edu" },
-        { id: 3, name: "Prof. Instructor", email: "instructor@stanford.edu" },
-        { id: 4, name: "Student Member", email: "student@stanford.edu" },
+        { id: 1, name: "Dr. Sarah Chen", email: "orgadmin@stanford.edu" },
+        { id: 2, name: "Prof. James Miller", email: "instructor1@stanford.edu" },
+        { id: 3, name: "Prof. Lisa Wang", email: "instructor2@stanford.edu" },
+        { id: 4, name: "Alice Johnson", email: "student@stanford.edu" },
     ],
 
     memberships: [
-        { userId: 1, role: "owner" },
-        { userId: 2, role: "admin" },
-        { userId: 3, role: "mentor" },
+        { userId: 1, role: "org_admin" },
+        { userId: 2, role: "instructor" },
+        { userId: 3, role: "instructor" },
         { userId: 4, role: "member" },
     ],
 
     groups: [
-        { id: 1, name: "EE 101 — Intro to Digital Logic", mentorId: 3, memberIds: [4] },
-        { id: 2, name: "EE 271 — Advanced Circuit Design", mentorId: 2, memberIds: [3, 4] },
+        { id: 1, name: "EE 101 — Intro to Digital Logic", mentorId: 2, memberIds: [4] },
+        { id: 2, name: "EE 271 — Advanced Circuit Design", mentorId: 3, memberIds: [4] },
     ],
 
     currentUserId: 1,

@@ -2,14 +2,19 @@ import { AppState, getUserById } from './data.js';
 import { canPerform, getPermissionMatrix, ROLES } from './permissions.js';
 
 const ROLE_COLORS = {
-    owner: "#8e44ad",
-    admin: "#2980b9",
-    mentor: "#27ae60",
+    org_admin: "#e74c3c",
+    instructor: "#2980b9",
     member: "#7f8c8d",
 };
 
+const ROLE_LABELS = {
+    org_admin: "Org Admin",
+    instructor: "Instructor",
+    member: "Member",
+};
+
 function roleBadge(role) {
-    return `<span class="role-badge" style="background:${ROLE_COLORS[role]}">${role}</span>`;
+    return `<span class="role-badge" style="background:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>`;
 }
 
 function actionBtn(label, action, targetId, disabled) {
@@ -56,15 +61,15 @@ export function renderDashboard() {
                 <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#27ae60" stroke-width="1.5">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                 </svg>
-                <div class="stat-number">${roleCounts.admin + roleCounts.owner}</div>
-                <div class="stat-label">Admins</div>
+                <div class="stat-number">${roleCounts.org_admin}</div>
+                <div class="stat-label">Org Admins</div>
             </div>
             <div class="stat-card">
                 <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#27ae60" stroke-width="1.5">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                 </svg>
-                <div class="stat-number">${roleCounts.mentor}</div>
+                <div class="stat-number">${roleCounts.instructor}</div>
                 <div class="stat-label">Instructors</div>
             </div>
         </div>
@@ -81,11 +86,7 @@ export function renderMembers(currentRole, currentUserId) {
 
         const roleOptions = ROLES
             .filter(r => r !== m.role)
-            .filter(r => {
-                if (currentRole !== "owner" && r === "owner") return false;
-                return true;
-            })
-            .map(r => `<option value="${r}">${r}</option>`)
+            .map(r => `<option value="${r}">${ROLE_LABELS[r]}</option>`)
             .join("");
 
         const changeRoleHtml = canChange
@@ -131,16 +132,16 @@ export function renderMembers(currentRole, currentUserId) {
 export function renderGroups(currentRole) {
     const canCreate = canPerform("createGroup", currentRole).allowed;
 
-    const mentorOptions = AppState.memberships
-        .filter(m => m.role === "mentor" || m.role === "admin" || m.role === "owner")
+    const instructorOptions = AppState.memberships
+        .filter(m => m.role === "instructor" || m.role === "org_admin")
         .map(m => {
             const u = getUserById(m.userId);
-            return `<option value="${m.userId}">${u.name} (${m.role})</option>`;
+            return `<option value="${m.userId}">${u.name} (${ROLE_LABELS[m.role]})</option>`;
         })
         .join("");
 
     const groupCards = AppState.groups.map(g => {
-        const mentor = g.mentorId ? getUserById(g.mentorId) : null;
+        const instructor = g.mentorId ? getUserById(g.mentorId) : null;
         const members = g.memberIds.map(id => getUserById(id)).filter(Boolean);
 
         const canDelete = canPerform("deleteGroup", currentRole).allowed;
@@ -153,7 +154,7 @@ export function renderGroups(currentRole) {
                         ${actionBtn("Delete", "deleteGroup", g.id, !canDelete)}
                     </div>
                 </div>
-                <p>Mentor: ${mentor ? `<strong>${mentor.name}</strong>` : '<em>None</em>'}</p>
+                <p>Instructor: ${instructor ? `<strong>${instructor.name}</strong>` : '<em>None</em>'}</p>
                 <p>Members: ${members.length > 0 ? members.map(m => m.name).join(", ") : '<em>None</em>'}</p>
             </div>
         `;
@@ -164,7 +165,7 @@ export function renderGroups(currentRole) {
             <h3>Create New Group</h3>
             <div class="form-row">
                 <input type="text" id="new-group-name" placeholder="Group name" class="input" />
-                <select id="new-group-mentor" class="input">${mentorOptions}</select>
+                <select id="new-group-mentor" class="input">${instructorOptions}</select>
                 <button class="btn" data-action="createGroup">Create</button>
             </div>
         </div>

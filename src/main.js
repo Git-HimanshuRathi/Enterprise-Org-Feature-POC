@@ -2,6 +2,18 @@ import { AppState, getCurrentUser, getCurrentRole, addGroup, removeGroup, remove
 import { canPerform } from './permissions.js';
 import { renderDashboard, renderMembers, renderGroups, renderPermissionMatrix, showToast } from './ui.js';
 
+const ROLE_LABELS = {
+    org_admin: "Org Admin",
+    instructor: "Instructor",
+    member: "Member",
+};
+
+const ROLE_COLORS = {
+    org_admin: "#e74c3c",
+    instructor: "#2980b9",
+    member: "#7f8c8d",
+};
+
 const content = document.getElementById("content");
 const userSwitcher = document.getElementById("user-switcher");
 const tabs = document.querySelectorAll(".tab-btn");
@@ -12,10 +24,9 @@ function render() {
     const role = getCurrentRole();
     const user = getCurrentUser();
 
-    const roleColors = { owner: "#8e44ad", admin: "#2980b9", mentor: "#27ae60", member: "#7f8c8d" };
     const roleEl = document.getElementById("current-role");
-    roleEl.textContent = role;
-    roleEl.style.background = roleColors[role];
+    roleEl.textContent = ROLE_LABELS[role];
+    roleEl.style.background = ROLE_COLORS[role];
 
     switch (currentTab) {
         case "dashboard":
@@ -135,7 +146,7 @@ content.addEventListener("change", (e) => {
     }
 
     changeRole(targetUserId, newRole);
-    showToast(`Role changed to ${newRole}`, "allowed");
+    showToast(`Role changed to ${ROLE_LABELS[newRole]}`, "allowed");
     render();
 });
 
