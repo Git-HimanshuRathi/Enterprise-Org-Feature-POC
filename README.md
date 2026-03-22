@@ -19,6 +19,12 @@ Built as part of my GSoC 2026 proposal for the **Enterprise & Institutional Orga
 - No real authentication — just a user switcher dropdown
 - No circuit sharing or assignment features
 
+## RBAC Logic 
+Roles follow a hierarchy: Owner > Admin > Mentor > Member. Each action is checked via canPerform(action, role, context) with contextual rules (e.g., you can't remove someone with an equal or higher role).
+
+<img width="892" height="613" alt="image" src="https://github.com/user-attachments/assets/bc3ab1b2-2eb6-4e42-8577-6462a7a20281" />
+
+
 ## Files
 
 ```
